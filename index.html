@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+  <meta name="description" content="GateGoat — a family travel companion. Destination weather, distance to your terminal, and a 15-minute pre-boarding nudge." />
+  <meta name="theme-color" content="#F2EBDD" />
+  <title>GateGoat · Family Travel</title>
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M22 18C16 12 12 6 16 4s8 4 10 12M42 18c6-6 10-12 6-14s-8 4-10 12' stroke='%231C1814' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M20 22c0-4 4-6 12-6s12 2 12 6l-2 20c0 6-4 10-10 10s-10-4-10-10z' fill='%231C1814'/%3E%3Ccircle cx='27' cy='30' r='1.5' fill='%23F2EBDD'/%3E%3Ccircle cx='37' cy='30' r='1.5' fill='%23F2EBDD'/%3E%3Cpath d='M30 50l2 8 2-8z' fill='%231C1814'/%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      color: #1C1814;
+      background: #F2EBDD;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .boot {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; font-family: 'Fraunces', serif; font-size: 24px;
+      opacity: 0.5;
+    }
+
+    /* Tailwind-lite utilities (just what we need) */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-1 { flex: 1; }
+    .gap-1 { gap: 4px; }
+    .gap-1\.5 { gap: 6px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+    .gap-5 { gap: 20px; }
+    .gap-6 { gap: 24px; }
+    .grid { display: grid; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .hidden { display: none; }
+    .relative { position: relative; }
+    .max-w-5xl { max-width: 64rem; }
+    .max-w-6xl { max-width: 72rem; }
+    .max-w-4xl { max-width: 56rem; }
+    .max-w-2xl { max-width: 42rem; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .px-4 { padding-left: 1rem; padding-right: 1rem; }
+    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+    .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+    .pt-8 { padding-top: 2rem; }
+    .pt-12 { padding-top: 3rem; }
+    .pb-4 { padding-bottom: 1rem; }
+    .pb-20 { padding-bottom: 5rem; }
+    .p-3 { padding: 12px; }
+    .p-4 { padding: 16px; }
+    .p-5 { padding: 20px; }
+    .p-6 { padding: 24px; }
+    .p-7 { padding: 28px; }
+    .p-10 { padding: 40px; }
+    .p-14 { padding: 56px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-5 { margin-top: 20px; }
+    .mt-6 { margin-top: 24px; }
+    .mt-8 { margin-top: 32px; }
+    .mt-10 { margin-top: 40px; }
+    .mt-14 { margin-top: 56px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-5 { margin-bottom: 20px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mb-7 { margin-bottom: 28px; }
+    .mb-10 { margin-bottom: 40px; }
+    .pb-2 { padding-bottom: 8px; }
+    .col-span-12 { grid-column: span 12 / span 12; }
+    .col-span-3 { grid-column: span 3 / span 3; }
+    .col-span-9 { grid-column: span 9 / span 9; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .overflow-hidden { overflow: hidden; }
+    @media (min-width: 768px) {
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .md\:p-7 { padding: 28px; }
+      .md\:p-8 { padding: 32px; }
+      .md\:p-14 { padding: 56px; }
+      .md\:col-span-3 { grid-column: span 3 / span 3; }
+      .md\:col-span-9 { grid-column: span 9 / span 9; }
+      .md\:flex { display: flex; }
+      .md\:gap-6 { gap: 24px; }
+    }
+    .grid.gap-5 { gap: 20px; }
+    .grid.gap-8 { gap: 32px; }
+
+    /* GateGoat aesthetic */
+    .gg-root {
+      position: relative;
+      min-height: 100vh;
+    }
+    .gg-root::before {
+      content: "";
+      position: fixed; inset: 0;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(217,104,43,0.05) 0, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(74,123,168,0.06) 0, transparent 40%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.11 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+      pointer-events: none;
+      z-index: 0;
+    }
+    .gg-display {
+      font-family: 'Fraunces', Georgia, serif;
+      font-optical-sizing: auto;
+      font-variation-settings: "opsz" 144;
+      letter-spacing: -0.02em;
+    }
+    .gg-mono {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      letter-spacing: -0.01em;
+    }
+    .gg-pass {
+      background: #FFFCF4;
+      border: 1.5px solid #1C1814;
+      border-radius: 14px;
+      position: relative;
+      box-shadow: 8px 8px 0 #1C1814;
+    }
+    .gg-pass::before, .gg-pass::after {
+      content: "";
+      position: absolute;
+      width: 24px; height: 24px;
+      background: #F2EBDD;
+      border: 1.5px solid #1C1814;
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .gg-pass::before { left: -13px; }
+    .gg-pass::after { right: -13px; }
+    .gg-perforation {
+      border-left: 2px dashed #1C1814;
+      opacity: 0.4;
+    }
+    .gg-card {
+      background: #FFFCF4;
+      border: 1.5px solid #1C1814;
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 #1C1814;
+    }
+    .gg-card-warm {
+      background: #FBE3CC;
+      border: 1.5px solid #1C1814;
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 #1C1814;
+    }
+    .gg-card-cool {
+      background: #DCE7F2;
+      border: 1.5px solid #1C1814;
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 #1C1814;
+    }
+    .gg-btn {
+      background: #1C1814;
+      color: #F2EBDD;
+      border: 1.5px solid #1C1814;
+      border-radius: 999px;
+      padding: 14px 26px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+      box-shadow: 4px 4px 0 #D9682B;
+    }
+    .gg-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #D9682B; }
+    .gg-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #D9682B; }
+    .gg-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .gg-btn-ghost {
+      background: transparent;
+      color: #1C1814;
+      border: 1.5px solid #1C1814;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .gg-btn-ghost:hover { background: #1C1814; color: #F2EBDD; }
+    .gg-input {
+      background: #FFFCF4;
+      border: 1.5px solid #1C1814;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      width: 100%;
+      outline: none;
+      color: #1C1814;
+      transition: box-shadow 120ms ease;
+    }
+    .gg-input:focus {
+      box-shadow: 3px 3px 0 #D9682B;
+    }
+    .gg-input::placeholder {
+      color: rgba(28,24,20,0.4);
+    }
+    .gg-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      opacity: 0.65;
+      display: block;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .gg-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #1C1814;
+      color: #F2EBDD;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .gg-tag-amber { background: #D9682B; }
+    .gg-tag-blue { background: #4A7BA8; }
+    .gg-tag-sage { background: #7B8A6E; }
+    .gg-divider {
+      height: 1.5px;
+      background: #1C1814;
+      opacity: 0.15;
+    }
+    .gg-route-line {
+      height: 2px;
+      background: repeating-linear-gradient(
+        to right, #1C1814 0, #1C1814 6px, transparent 6px, transparent 12px
+      );
+      flex: 1;
+      position: relative;
+    }
+    .gg-route-line::after {
+      content: "✈";
+      position: absolute;
+      top: -10px;
+      right: 50%;
+      transform: translateX(50%);
+      font-size: 18px;
+      background: #FFFCF4;
+      padding: 0 6px;
+    }
+    .gg-fade-in { animation: ggFade 500ms ease both; }
+    @keyframes ggFade {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .gg-stagger > * { opacity: 0; animation: ggFade 600ms ease forwards; }
+    .gg-stagger > *:nth-child(1) { animation-delay: 0ms; }
+    .gg-stagger > *:nth-child(2) { animation-delay: 120ms; }
+    .gg-stagger > *:nth-child(3) { animation-delay: 240ms; }
+    .gg-spin { animation: ggSpin 1s linear infinite; }
+    @keyframes ggSpin { to { transform: rotate(360deg); } }
+    .gg-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      cursor: pointer;
+      animation: ggSlide 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      max-width: calc(100vw - 32px);
+    }
+    .gg-toast-inner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #1C1814;
+      color: #F2EBDD;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 6px 6px 0 #D9682B, 0 8px 30px rgba(0,0,0,0.18);
+      min-width: 320px;
+      max-width: 480px;
+    }
+    .gg-toast-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #D9682B;
+      color: #FFFCF4;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      animation: ggRing 0.7s ease-in-out 0s 3;
+    }
+    @keyframes ggSlide {
+      from { transform: translate(-50%, -120%); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+    @keyframes ggRing {
+      0%, 100% { transform: rotate(0); }
+      25% { transform: rotate(-18deg); }
+      75% { transform: rotate(18deg); }
+    }
+    .gg-name-input {
+      background: #FFFCF4;
+      border: 1.5px solid #1C1814;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      width: 140px;
+      outline: none;
+      color: #1C1814;
+    }
+    .gg-name-input:focus {
+      box-shadow: 3px 3px 0 #D9682B;
+    }
+    .gg-orange { color: #D9682B; }
+    .gg-blue { color: #4A7BA8; }
+    .gg-sage { color: #7B8A6E; }
+
+    /* Airport autocomplete */
+    .gg-autocomplete {
+      position: relative;
+    }
+    .gg-suggest {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #FFFCF4;
+      border: 1.5px solid #1C1814;
+      border-radius: 10px;
+      margin-top: 4px;
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 20;
+      box-shadow: 4px 4px 0 #1C1814;
+    }
+    .gg-suggest-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(28,24,20,0.1);
+      transition: background 80ms ease;
+    }
+    .gg-suggest-item:last-child { border-bottom: none; }
+    .gg-suggest-item:hover, .gg-suggest-item.active { background: #FBE3CC; }
+    .gg-suggest-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+    }
+    .gg-suggest-name {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    /* helper visual */
+    .space-y-3 > * + * { margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <noscript>GateGoat needs JavaScript to run. Please enable it.</noscript>
+  <div id="root"><div class="boot">Loading GateGoat…</div></div>
+
+  <script>
+    // ========= EMBEDDED AIRPORT DATABASE =========
+    // Curated list of ~150 of the world's busiest airports.
+    // Format: [code, name, city, country, lat, lng]
+    window.AIRPORTS_DB = [
+      // North America
+      ["JFK","John F. Kennedy Intl","New York","USA",40.6413,-73.7781],
+      ["LAX","Los Angeles Intl","Los Angeles","USA",33.9416,-118.4085],
+      ["ORD","O'Hare Intl","Chicago","USA",41.9742,-87.9073],
+      ["ATL","Hartsfield-Jackson","Atlanta","USA",33.6407,-84.4277],
+      ["DFW","Dallas/Fort Worth","Dallas","USA",32.8998,-97.0403],
+      ["DEN","Denver Intl","Denver","USA",39.8561,-104.6737],
+      ["SFO","San Francisco Intl","San Francisco","USA",37.6213,-122.3790],
+      ["SEA","Seattle-Tacoma","Seattle","USA",47.4502,-122.3088],
+      ["LAS","Harry Reid Intl","Las Vegas","USA",36.0840,-115.1537],
+      ["MCO","Orlando Intl","Orlando","USA",28.4312,-81.3081],
+      ["EWR","Newark Liberty","Newark","USA",40.6895,-74.1745],
+      ["CLT","Charlotte Douglas","Charlotte","USA",35.2140,-80.9431],
+      ["MIA","Miami Intl","Miami","USA",25.7959,-80.2870],
+      ["PHX","Sky Harbor","Phoenix","USA",33.4373,-112.0078],
+      ["IAH","George Bush Intl","Houston","USA",29.9902,-95.3368],
+      ["BOS","Logan Intl","Boston","USA",42.3656,-71.0096],
+      ["MSP","Minneapolis-St. Paul","Minneapolis","USA",44.8848,-93.2223],
+      ["FLL","Fort Lauderdale-Hollywood","Fort Lauderdale","USA",26.0742,-80.1506],
+      ["DTW","Detroit Metropolitan","Detroit","USA",42.2162,-83.3554],
+      ["PHL","Philadelphia Intl","Philadelphia","USA",39.8744,-75.2424],
+      ["LGA","LaGuardia","New York","USA",40.7769,-73.8740],
+      ["BWI","Baltimore/Washington","Baltimore","USA",39.1774,-76.6684],
+      ["SLC","Salt Lake City Intl","Salt Lake City","USA",40.7899,-111.9791],
+      ["SAN","San Diego Intl","San Diego","USA",32.7338,-117.1933],
+      ["DCA","Reagan National","Washington","USA",38.8512,-77.0402],
+      ["IAD","Dulles Intl","Washington","USA",38.9531,-77.4565],
+      ["MDW","Midway","Chicago","USA",41.7868,-87.7522],
+      ["TPA","Tampa Intl","Tampa","USA",27.9755,-82.5332],
+      ["BNA","Nashville Intl","Nashville","USA",36.1245,-86.6782],
+      ["AUS","Austin-Bergstrom","Austin","USA",30.1975,-97.6664],
+      ["RDU","Raleigh-Durham","Raleigh","USA",35.8801,-78.7880],
+      ["MCI","Kansas City Intl","Kansas City","USA",39.2976,-94.7139],
+      ["OAK","Oakland Intl","Oakland","USA",37.7213,-122.2208],
+      ["MSY","Louis Armstrong","New Orleans","USA",29.9911,-90.2580],
+      ["SMF","Sacramento Intl","Sacramento","USA",38.6951,-121.5908],
+      ["RSW","Southwest Florida","Fort Myers","USA",26.5362,-81.7552],
+      ["PIT","Pittsburgh Intl","Pittsburgh","USA",40.4915,-80.2329],
+      ["IND","Indianapolis Intl","Indianapolis","USA",39.7173,-86.2944],
+      ["CMH","John Glenn Columbus","Columbus","USA",39.9980,-82.8919],
+      ["CLE","Cleveland Hopkins","Cleveland","USA",41.4117,-81.8498],
+      ["CVG","Cincinnati/N. Kentucky","Cincinnati","USA",39.0488,-84.6678],
+      ["JAX","Jacksonville Intl","Jacksonville","USA",30.4941,-81.6879],
+      ["SAT","San Antonio Intl","San Antonio","USA",29.5337,-98.4698],
+      ["HNL","Daniel K. Inouye","Honolulu","USA",21.3187,-157.9224],
+      ["ANC","Ted Stevens","Anchorage","USA",61.1742,-149.9962],
+      ["PDX","Portland Intl","Portland","USA",45.5898,-122.5951],
+      ["STL","St. Louis Lambert","St. Louis","USA",38.7487,-90.3700],
+      ["MEM","Memphis Intl","Memphis","USA",35.0424,-89.9767],
+      ["YYZ","Toronto Pearson","Toronto","Canada",43.6777,-79.6248],
+      ["YVR","Vancouver Intl","Vancouver","Canada",49.1967,-123.1815],
+      ["YUL","Montréal-Trudeau","Montréal","Canada",45.4576,-73.7497],
+      ["YYC","Calgary Intl","Calgary","Canada",51.1215,-114.0076],
+      ["YEG","Edmonton Intl","Edmonton","Canada",53.3097,-113.5797],
+      ["YOW","Ottawa Macdonald-Cartier","Ottawa","Canada",45.3225,-75.6692],
+      ["YHZ","Halifax Stanfield","Halifax","Canada",44.8808,-63.5086],
+      // UK & Ireland
+      ["LHR","Heathrow","London","UK",51.4700,-0.4543],
+      ["LGW","Gatwick","London","UK",51.1537,-0.1821],
+      ["STN","Stansted","London","UK",51.8860,0.2389],
+      ["LTN","Luton","London","UK",51.8763,-0.3717],
+      ["LCY","London City","London","UK",51.5048,0.0495],
+      ["MAN","Manchester","Manchester","UK",53.3537,-2.2750],
+      ["EDI","Edinburgh","Edinburgh","UK",55.9500,-3.3725],
+      ["GLA","Glasgow","Glasgow","UK",55.8642,-4.4318],
+      ["BHX","Birmingham","Birmingham","UK",52.4539,-1.7480],
+      ["DUB","Dublin","Dublin","Ireland",53.4264,-6.2499],
+      ["ORK","Cork","Cork","Ireland",51.8413,-8.4911],
+      ["SNN","Shannon","Shannon","Ireland",52.7019,-8.9248],
+      // Continental Europe
+      ["CDG","Charles de Gaulle","Paris","France",49.0097,2.5479],
+      ["ORY","Orly","Paris","France",48.7233,2.3794],
+      ["NCE","Côte d'Azur","Nice","France",43.6584,7.2159],
+      ["AMS","Schiphol","Amsterdam","Netherlands",52.3105,4.7683],
+      ["FRA","Frankfurt","Frankfurt","Germany",50.0379,8.5622],
+      ["MUC","Munich","Munich","Germany",48.3537,11.7860],
+      ["BER","Berlin Brandenburg","Berlin","Germany",52.3667,13.5033],
+      ["DUS","Düsseldorf","Düsseldorf","Germany",51.2895,6.7668],
+      ["HAM","Hamburg","Hamburg","Germany",53.6304,9.9882],
+      ["ZRH","Zurich","Zurich","Switzerland",47.4647,8.5492],
+      ["GVA","Geneva","Geneva","Switzerland",46.2370,6.1090],
+      ["VIE","Vienna","Vienna","Austria",48.1103,16.5697],
+      ["BRU","Brussels","Brussels","Belgium",50.9014,4.4844],
+      ["MAD","Madrid-Barajas","Madrid","Spain",40.4983,-3.5676],
+      ["BCN","Barcelona-El Prat","Barcelona","Spain",41.2974,2.0833],
+      ["LIS","Lisbon","Lisbon","Portugal",38.7813,-9.1359],
+      ["OPO","Porto","Porto","Portugal",41.2421,-8.6781],
+      ["FCO","Leonardo da Vinci","Rome","Italy",41.8003,12.2389],
+      ["MXP","Milan Malpensa","Milan","Italy",45.6306,8.7281],
+      ["LIN","Milan Linate","Milan","Italy",45.4451,9.2767],
+      ["NAP","Naples","Naples","Italy",40.8860,14.2908],
+      ["VCE","Venice Marco Polo","Venice","Italy",45.5053,12.3519],
+      ["ATH","Athens","Athens","Greece",37.9364,23.9445],
+      ["IST","Istanbul","Istanbul","Turkey",41.2606,28.7416],
+      ["SAW","Sabiha Gökçen","Istanbul","Turkey",40.8986,29.3092],
+      ["ARN","Arlanda","Stockholm","Sweden",59.6519,17.9186],
+      ["CPH","Copenhagen","Copenhagen","Denmark",55.6181,12.6561],
+      ["OSL","Oslo Gardermoen","Oslo","Norway",60.1939,11.1004],
+      ["HEL","Helsinki-Vantaa","Helsinki","Finland",60.3172,24.9633],
+      ["KEF","Keflavík","Reykjavik","Iceland",63.9850,-22.6056],
+      ["WAW","Warsaw Chopin","Warsaw","Poland",52.1657,20.9671],
+      ["PRG","Václav Havel","Prague","Czech Rep.",50.1008,14.2632],
+      ["BUD","Budapest","Budapest","Hungary",47.4394,19.2611],
+      ["RIX","Riga","Riga","Latvia",56.9236,23.9711],
+      ["SVO","Sheremetyevo","Moscow","Russia",55.9726,37.4146],
+      ["DME","Domodedovo","Moscow","Russia",55.4087,37.9063],
+      // Middle East
+      ["DXB","Dubai Intl","Dubai","UAE",25.2532,55.3657],
+      ["AUH","Abu Dhabi","Abu Dhabi","UAE",24.4329,54.6511],
+      ["DOH","Hamad Intl","Doha","Qatar",25.2731,51.6080],
+      ["KWI","Kuwait Intl","Kuwait City","Kuwait",29.2266,47.9689],
+      ["RUH","King Khalid","Riyadh","Saudi Arabia",24.9576,46.6988],
+      ["JED","King Abdulaziz","Jeddah","Saudi Arabia",21.6796,39.1567],
+      ["TLV","Ben Gurion","Tel Aviv","Israel",32.0114,34.8867],
+      ["AMM","Queen Alia","Amman","Jordan",31.7226,35.9933],
+      ["BEY","Beirut-Rafic Hariri","Beirut","Lebanon",33.8208,35.4884],
+      ["IKA","Imam Khomeini","Tehran","Iran",35.4161,51.1522],
+      ["CAI","Cairo","Cairo","Egypt",30.1219,31.4056],
+      // Asia
+      ["HND","Tokyo Haneda","Tokyo","Japan",35.5494,139.7798],
+      ["NRT","Narita","Tokyo","Japan",35.7720,140.3929],
+      ["KIX","Kansai Intl","Osaka","Japan",34.4347,135.2440],
+      ["ITM","Itami","Osaka","Japan",34.7855,135.4382],
+      ["NGO","Chubu Centrair","Nagoya","Japan",34.8584,136.8054],
+      ["FUK","Fukuoka","Fukuoka","Japan",33.5859,130.4509],
+      ["ICN","Incheon Intl","Seoul","South Korea",37.4602,126.4407],
+      ["GMP","Gimpo Intl","Seoul","South Korea",37.5587,126.7905],
+      ["PEK","Beijing Capital","Beijing","China",40.0801,116.5846],
+      ["PKX","Beijing Daxing","Beijing","China",39.5098,116.4105],
+      ["PVG","Pudong","Shanghai","China",31.1443,121.8083],
+      ["SHA","Hongqiao","Shanghai","China",31.1979,121.3363],
+      ["CAN","Baiyun","Guangzhou","China",23.3924,113.2988],
+      ["SZX","Bao'an","Shenzhen","China",22.6395,113.8108],
+      ["CTU","Tianfu","Chengdu","China",30.5785,103.9471],
+      ["HKG","Hong Kong Intl","Hong Kong","Hong Kong",22.3080,113.9185],
+      ["TPE","Taoyuan","Taipei","Taiwan",25.0777,121.2328],
+      ["TSA","Songshan","Taipei","Taiwan",25.0697,121.5520],
+      ["SIN","Changi","Singapore","Singapore",1.3644,103.9915],
+      ["BKK","Suvarnabhumi","Bangkok","Thailand",13.6900,100.7501],
+      ["DMK","Don Mueang","Bangkok","Thailand",13.9126,100.6068],
+      ["KUL","Kuala Lumpur Intl","Kuala Lumpur","Malaysia",2.7456,101.7099],
+      ["CGK","Soekarno-Hatta","Jakarta","Indonesia",-6.1256,106.6558],
+      ["DPS","Ngurah Rai","Bali","Indonesia",-8.7482,115.1675],
+      ["MNL","Ninoy Aquino","Manila","Philippines",14.5086,121.0194],
+      ["SGN","Tan Son Nhat","Ho Chi Minh","Vietnam",10.8188,106.6519],
+      ["HAN","Noi Bai","Hanoi","Vietnam",21.2189,105.8042],
+      ["DEL","Indira Gandhi Intl","Delhi","India",28.5562,77.1000],
+      ["BOM","Chhatrapati Shivaji","Mumbai","India",19.0896,72.8656],
+      ["BLR","Kempegowda","Bengaluru","India",13.1986,77.7066],
+      ["MAA","Chennai Intl","Chennai","India",12.9941,80.1709],
+      ["HYD","Rajiv Gandhi","Hyderabad","India",17.2403,78.4294],
+      ["CCU","Netaji Subhas","Kolkata","India",22.6547,88.4467],
+      ["GOI","Goa Dabolim","Goa","India",15.3808,73.8314],
+      ["COK","Cochin","Kochi","India",10.1520,76.4019],
+      ["PNQ","Pune","Pune","India",18.5793,73.9089],
+      ["AMD","Sardar Vallabhbhai Patel","Ahmedabad","India",23.0772,72.6347],
+      ["JAI","Jaipur","Jaipur","India",26.8242,75.8122],
+      ["LKO","Chaudhary Charan Singh","Lucknow","India",26.7606,80.8893],
+      ["IXC","Chandigarh","Chandigarh","India",30.6735,76.7884],
+      ["TRV","Trivandrum","Thiruvananthapuram","India",8.4821,76.9201],
+      ["CMB","Bandaranaike","Colombo","Sri Lanka",7.1808,79.8842],
+      ["KTM","Tribhuvan","Kathmandu","Nepal",27.6966,85.3591],
+      ["DAC","Hazrat Shahjalal","Dhaka","Bangladesh",23.8431,90.3978],
+      ["KHI","Jinnah","Karachi","Pakistan",24.9008,67.1681],
+      ["LHE","Allama Iqbal","Lahore","Pakistan",31.5216,74.4036],
+      ["ISB","Islamabad","Islamabad","Pakistan",33.5491,72.8266],
+      // Oceania
+      ["SYD","Kingsford Smith","Sydney","Australia",-33.9399,151.1753],
+      ["MEL","Melbourne","Melbourne","Australia",-37.6690,144.8410],
+      ["BNE","Brisbane","Brisbane","Australia",-27.3942,153.1218],
+      ["PER","Perth","Perth","Australia",-31.9385,115.9672],
+      ["ADL","Adelaide","Adelaide","Australia",-34.9462,138.5306],
+      ["AKL","Auckland","Auckland","New Zealand",-37.0082,174.7850],
+      ["WLG","Wellington","Wellington","New Zealand",-41.3272,174.8053],
+      ["CHC","Christchurch","Christchurch","New Zealand",-43.4894,172.5320],
+      ["NAN","Nadi","Nadi","Fiji",-17.7553,177.4434],
+      // Latin America
+      ["GRU","São Paulo-Guarulhos","São Paulo","Brazil",-23.4356,-46.4731],
+      ["GIG","Galeão","Rio de Janeiro","Brazil",-22.8089,-43.2436],
+      ["BSB","Brasília","Brasília","Brazil",-15.8697,-47.9208],
+      ["EZE","Ezeiza","Buenos Aires","Argentina",-34.8222,-58.5358],
+      ["AEP","Aeroparque","Buenos Aires","Argentina",-34.5592,-58.4156],
+      ["SCL","Santiago","Santiago","Chile",-33.3930,-70.7858],
+      ["LIM","Jorge Chávez","Lima","Peru",-12.0219,-77.1143],
+      ["BOG","El Dorado","Bogotá","Colombia",4.7016,-74.1469],
+      ["MEX","Benito Juárez","Mexico City","Mexico",19.4361,-99.0719],
+      ["CUN","Cancún","Cancún","Mexico",21.0365,-86.8770],
+      ["GDL","Guadalajara","Guadalajara","Mexico",20.5235,-103.3109],
+      ["PTY","Tocumen","Panama City","Panama",9.0714,-79.3835],
+      ["SJO","Juan Santamaría","San José","Costa Rica",9.9939,-84.2089],
+      ["HAV","José Martí","Havana","Cuba",22.9892,-82.4091],
+      ["SJU","Luis Muñoz Marín","San Juan","Puerto Rico",18.4395,-66.0018],
+      // Africa
+      ["JNB","O.R. Tambo","Johannesburg","South Africa",-26.1392,28.2460],
+      ["CPT","Cape Town","Cape Town","South Africa",-33.9648,18.6017],
+      ["NBO","Jomo Kenyatta","Nairobi","Kenya",-1.3192,36.9278],
+      ["ADD","Bole","Addis Ababa","Ethiopia",8.9778,38.7997],
+      ["LOS","Murtala Muhammed","Lagos","Nigeria",6.5774,3.3211],
+      ["ACC","Kotoka","Accra","Ghana",5.6052,-0.1668],
+      ["CMN","Mohammed V","Casablanca","Morocco",33.3675,-7.5898],
+      ["RAK","Marrakech-Menara","Marrakech","Morocco",31.6069,-8.0363],
+      ["TUN","Tunis-Carthage","Tunis","Tunisia",36.8517,10.2272],
+      ["MRU","Plaisance","Mauritius","Mauritius",-20.4302,57.6837],
+    ];
+  </script>
+
+  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
+  <script type="text/babel" data-presets="react,env">
+    const { useState, useEffect, useRef, useMemo } = React;
+    const AIRPORTS = (window.AIRPORTS_DB || []).map(a => ({
+      code: a[0], name: a[1], city: a[2], country: a[3], lat: a[4], lng: a[5]
+    }));
+
+    // ============== HELPERS ==============
+    const haversine = (lat1, lng1, lat2, lng2) => {
+      const R = 6371;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLng = ((lng2 - lng1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLng / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    };
+
+    const weatherInfo = (code) => {
+      if (code === 0) return { label: "Clear sky", icon: "sun", tone: "sun" };
+      if ([1, 2, 3].includes(code)) return { label: "Partly cloudy", icon: "cloud-sun", tone: "mix" };
+      if ([45, 48].includes(code)) return { label: "Foggy", icon: "cloud-fog", tone: "cool" };
+      if ([51, 53, 55, 56, 57].includes(code)) return { label: "Drizzle", icon: "cloud-drizzle", tone: "cool" };
+      if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { label: "Rain", icon: "cloud-rain", tone: "cool" };
+      if ([71, 73, 75, 77, 85, 86].includes(code)) return { label: "Snow", icon: "cloud-snow", tone: "cool" };
+      if ([95, 96, 99].includes(code)) return { label: "Thunderstorm", icon: "cloud-lightning", tone: "warn" };
+      return { label: "Cloudy", icon: "cloud", tone: "mix" };
+    };
+
+    const fmtTime = (t) => {
+      if (!t) return "—";
+      const [h, m] = t.split(":").map(Number);
+      const ampm = h >= 12 ? "PM" : "AM";
+      const hh = ((h + 11) % 12) + 1;
+      return `${hh}:${String(m).padStart(2, "0")} ${ampm}`;
+    };
+
+    const fmtDate = (d) => {
+      if (!d) return "—";
+      try {
+        const dt = new Date(d + "T00:00:00");
+        return dt.toLocaleDateString(undefined, {
+          weekday: "short", month: "short", day: "numeric",
+        });
+      } catch { return d; }
+    };
+
+    const daysFromToday = (date) => {
+      if (!date) return null;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(date + "T00:00:00");
+      return Math.round((target - today) / (1000 * 60 * 60 * 24));
+    };
+
+    const boardingMinusFifteen = (date, time) => {
+      if (!date || !time) return null;
+      const [h, m] = time.split(":").map(Number);
+      const dt = new Date(date + "T00:00:00");
+      dt.setHours(h, m - 15, 0, 0);
+      return dt;
+    };
+
+    const formatTimeUntil = (target, nowMs) => {
+      if (!target) return "";
+      const ms = target.getTime() - nowMs;
+      if (ms <= 0) return "now";
+      const totalMin = Math.floor(ms / 60000);
+      const days = Math.floor(totalMin / 1440);
+      const hrs = Math.floor((totalMin % 1440) / 60);
+      const mins = totalMin % 60;
+      if (days > 0) return `in ${days}d ${hrs}h`;
+      if (hrs > 0) return `in ${hrs}h ${mins}m`;
+      if (mins > 0) return `in ${mins} min`;
+      return "in <1 min";
+    };
+
+    function minusMinutes(time, mins) {
+      const [h, m] = time.split(":").map(Number);
+      const total = h * 60 + m - mins;
+      const adj = ((total % 1440) + 1440) % 1440;
+      const nh = Math.floor(adj / 60);
+      const nm = adj % 60;
+      return fmtTime(`${String(nh).padStart(2, "0")}:${String(nm).padStart(2, "0")}`);
+    }
+
+    // ============== ICONS ==============
+    const ICONS = {
+      "plane": "M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z",
+      "plane-takeoff": "M2 22h20M6.36 17.4 4 17l-2-4 1.1-.55a2 2 0 0 1 1.8 0l.17.1a2 2 0 0 0 1.8 0L8 12l-1-7 1.4-.7a2 2 0 0 1 1.8 0l.17.1a2 2 0 0 0 1.8 0L13 4l4 8 2.95 1.18a3 3 0 0 1 1.55 1.13L22 16",
+      "bell": "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0",
+      "bell-ring": "M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0M4 2C2.8 3.7 2 5.7 2 8M22 8c0-2.3-.8-4.3-2-6",
+      "check": "M20 6 9 17l-5-5",
+      "x": "M18 6 6 18M6 6l12 12",
+      "map-pin": "M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6",
+      "navigation": "m3 11 19-9-9 19-2-8-8-2z",
+      "calendar": "M8 2v4M16 2v4M3 10h18M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z",
+      "clock": "M12 6v6l4 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+      "users": "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
+      "sun": "M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z",
+      "cloud": "M17.5 19a4.5 4.5 0 1 0-1.41-8.78 7 7 0 1 0-12.74 4.6A4.5 4.5 0 0 0 6 19h11.5z",
+      "cloud-sun": "M12 2v2M5.22 5.22l1.42 1.42M2 12h2M20 12h2M15.95 6.05A6 6 0 1 0 6.05 15.95M22 18a4 4 0 0 0-3.31-3.94A6 6 0 1 0 7 19a4 4 0 0 1 4-4h7a4 4 0 0 1 4 3z",
+      "cloud-rain": "M16 14v6M8 14v6M12 16v6M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+      "cloud-snow": "M8 15h.01M8 19h.01M12 17h.01M12 21h.01M16 15h.01M16 19h.01M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+      "cloud-fog": "M16 17H7M17 21H9M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+      "cloud-lightning": "m13 12-3 5h4l-3 5M11.236 16h.008M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+      "cloud-drizzle": "M8 19v1M8 14v1M16 19v1M16 14v1M12 21v1M12 16v1M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+      "wind": "M12.8 19.6A2 2 0 1 0 14 16H2M17.5 8a2.5 2.5 0 1 1 2 4H2M9.8 4.4A2 2 0 1 1 11 8H2",
+      "loader": "M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83",
+      "alert-circle": "M12 8v4M12 16h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+      "refresh": "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5",
+      "luggage": "M6 20h0a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h0M8 18V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14M10 20h4M8 22a2 2 0 1 1-4 0M20 22a2 2 0 1 1-4 0",
+      "backpack": "M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10zm5-3v0a3 3 0 0 1 6 0v0M9 14h6M8 21v-5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5",
+      "send": "M22 2 11 13M22 2l-7 20-4-9-9-4Z",
+      "edit": "M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z",
+    };
+
+    const Icon = ({ name, size = 20, strokeWidth = 2, ...props }) => {
+      const path = ICONS[name];
+      if (!path) return <span style={{display:"inline-block", width:size, height:size}} />;
+      const paths = path.split(/(?=M[\d.])/g).filter(Boolean); // split into separate path strings starting at each "M"
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" strokeWidth={strokeWidth}
+             strokeLinecap="round" strokeLinejoin="round"
+             style={{display:"inline-block", verticalAlign:"middle", flexShrink:0}}
+             {...props}>
+          {paths.map((p, i) => <path key={i} d={p} />)}
+        </svg>
+      );
+    };
+
+    // ============== GOAT MARK ==============
+    const GoatMark = ({ size = 40 }) => (
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden>
+        <path d="M22 18 C 16 12, 12 6, 16 4 C 20 2, 24 8, 26 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+        <path d="M42 18 C 48 12, 52 6, 48 4 C 44 2, 40 8, 38 16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+        <path d="M20 22 C 20 18, 24 16, 32 16 C 40 16, 44 18, 44 22 L 42 42 C 42 48, 38 52, 32 52 C 26 52, 22 48, 22 42 Z" fill="currentColor" />
+        <circle cx="27" cy="30" r="1.5" fill="#F2EBDD" />
+        <circle cx="37" cy="30" r="1.5" fill="#F2EBDD" />
+        <path d="M30 50 L 32 58 L 34 50 Z" fill="currentColor" />
+        <ellipse cx="19" cy="24" rx="3" ry="2" fill="currentColor" transform="rotate(-30 19 24)" />
+        <ellipse cx="45" cy="24" rx="3" ry="2" fill="currentColor" transform="rotate(30 45 24)" />
+      </svg>
+    );
+
+    // ============== AIRPORT AUTOCOMPLETE ==============
+    function AirportInput({ value, onChange, placeholder, label }) {
+      const [query, setQuery] = useState(value?.code || "");
+      const [open, setOpen] = useState(false);
+      const [activeIdx, setActiveIdx] = useState(0);
+      const wrapRef = useRef(null);
+
+      useEffect(() => {
+        const onClick = (e) => {
+          if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+        };
+        document.addEventListener("mousedown", onClick);
+        return () => document.removeEventListener("mousedown", onClick);
+      }, []);
+
+      const matches = useMemo(() => {
+        if (!query) return [];
+        const q = query.trim().toUpperCase();
+        return AIRPORTS
+          .map(a => {
+            let score = 0;
+            if (a.code === q) score += 100;
+            else if (a.code.startsWith(q)) score += 60;
+            const cityU = a.city.toUpperCase();
+            const nameU = a.name.toUpperCase();
+            if (cityU.startsWith(q)) score += 40;
+            else if (cityU.includes(q)) score += 20;
+            if (nameU.includes(q)) score += 10;
+            return { a, score };
+          })
+          .filter(x => x.score > 0)
+          .sort((x,y) => y.score - x.score)
+          .slice(0, 8)
+          .map(x => x.a);
+      }, [query]);
+
+      const pick = (a) => {
+        onChange(a);
+        setQuery(a.code);
+        setOpen(false);
+      };
+
+      return (
+        <div className="gg-autocomplete" ref={wrapRef}>
+          {label && <label className="gg-label">{label}</label>}
+          <input
+            type="text"
+            className="gg-input gg-mono"
+            value={query}
+            placeholder={placeholder}
+            onChange={(e) => {
+              setQuery(e.target.value.toUpperCase());
+              setOpen(true);
+              setActiveIdx(0);
+              if (!e.target.value) onChange(null);
+            }}
+            onFocus={() => query && setOpen(true)}
+            onKeyDown={(e) => {
+              if (!open || matches.length === 0) return;
+              if (e.key === "ArrowDown") { e.preventDefault(); setActiveIdx(i => Math.min(i+1, matches.length-1)); }
+              if (e.key === "ArrowUp")   { e.preventDefault(); setActiveIdx(i => Math.max(i-1, 0)); }
+              if (e.key === "Enter")     { e.preventDefault(); pick(matches[activeIdx]); }
+              if (e.key === "Escape")    { setOpen(false); }
+            }}
+            style={{ textTransform: "uppercase" }}
+            maxLength={40}
+          />
+          {open && matches.length > 0 && (
+            <div className="gg-suggest">
+              {matches.map((a, i) => (
+                <div
+                  key={a.code}
+                  className={"gg-suggest-item" + (i === activeIdx ? " active" : "")}
+                  onMouseDown={(e) => { e.preventDefault(); pick(a); }}
+                  onMouseEnter={() => setActiveIdx(i)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="gg-suggest-code">{a.code}</div>
+                    <div className="flex-1" style={{minWidth:0}}>
+                      <div style={{fontWeight:600, fontSize:14}}>{a.city}</div>
+                      <div className="gg-suggest-name">{a.name} · {a.country}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ============== TICKET ENTRY FORM ==============
+    function TicketForm({ onSubmit }) {
+      const today = new Date().toISOString().slice(0, 10);
+      const [airline, setAirline] = useState("");
+      const [flightNumber, setFlightNumber] = useState("");
+      const [passengerCount, setPassengerCount] = useState(1);
+      const [departureAirport, setDepartureAirport] = useState(null);
+      const [arrivalAirport, setArrivalAirport] = useState(null);
+      const [departureDate, setDepartureDate] = useState(today);
+      const [boardingTime, setBoardingTime] = useState("");
+      const [departureTime, setDepartureTime] = useState("");
+      const [terminal, setTerminal] = useState("");
+      const [seat, setSeat] = useState("");
+      const [gate, setGate] = useState("");
+      const [error, setError] = useState(null);
+
+      const submit = () => {
+        if (!airline.trim()) return setError("Airline is required.");
+        if (!flightNumber.trim()) return setError("Flight number is required.");
+        if (!departureAirport) return setError("Pick a departure airport from the list.");
+        if (!arrivalAirport) return setError("Pick an arrival airport from the list.");
+        if (!departureDate) return setError("Departure date is required.");
+        if (!boardingTime) return setError("Boarding time is required (it powers the alert).");
+
+        onSubmit({
+          airline: airline.trim(),
+          flightNumber: flightNumber.trim().toUpperCase(),
+          passengerCount: Number(passengerCount) || 1,
+          passengerNames: [],
+          departureDate,
+          boardingTime,
+          departureTime: departureTime || boardingTime,
+          departureAirport: { ...departureAirport, terminal: terminal.trim() || null },
+          arrivalAirport,
+          seat: seat.trim() || null,
+          gate: gate.trim() || null,
+        });
+      };
+
+      return (
+        <div className="gg-card p-6 md:p-7 gg-fade-in">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="gg-tag gg-tag-amber">01 · Trip details</div>
+          </div>
+          <h2 className="gg-display" style={{fontSize:30, fontWeight:800, lineHeight:1.1, margin:"6px 0 4px"}}>
+            Tell GateGoat about your flight.
+          </h2>
+          <p style={{fontSize:14, opacity:0.7, marginBottom:24}}>
+            Quick form — pulled from your boarding pass. Takes about 30 seconds.
+          </p>
+
+          <div className="grid gap-4" style={{gridTemplateColumns:"1fr"}}>
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+              <div style={{gridColumn:"span 2"}}>
+                <label className="gg-label">Airline</label>
+                <input className="gg-input" value={airline} onChange={(e)=>setAirline(e.target.value)} placeholder="e.g., Indigo, American, BA" maxLength={40}/>
+              </div>
+              <div>
+                <label className="gg-label">Flight #</label>
+                <input className="gg-input gg-mono" style={{textTransform:"uppercase"}} value={flightNumber} onChange={(e)=>setFlightNumber(e.target.value.toUpperCase())} placeholder="6E2342" maxLength={10}/>
+              </div>
+            </div>
+
+            <div className="grid gap-4 grid-cols-2">
+              <AirportInput label="From" value={departureAirport} onChange={setDepartureAirport} placeholder="DEL, JFK, LHR…" />
+              <AirportInput label="To" value={arrivalAirport} onChange={setArrivalAirport} placeholder="BOM, LAX…" />
+            </div>
+
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+              <div>
+                <label className="gg-label">Date</label>
+                <input type="date" className="gg-input" value={departureDate} onChange={(e)=>setDepartureDate(e.target.value)}/>
+              </div>
+              <div>
+                <label className="gg-label">Boarding time</label>
+                <input type="time" className="gg-input" value={boardingTime} onChange={(e)=>setBoardingTime(e.target.value)}/>
+              </div>
+              <div>
+                <label className="gg-label">Depart time</label>
+                <input type="time" className="gg-input" value={departureTime} onChange={(e)=>setDepartureTime(e.target.value)} placeholder="optional"/>
+              </div>
+              <div>
+                <label className="gg-label">Travelers</label>
+                <input type="number" min="1" max="20" className="gg-input" value={passengerCount} onChange={(e)=>setPassengerCount(e.target.value)}/>
+              </div>
+            </div>
+
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
+              <div>
+                <label className="gg-label">Terminal</label>
+                <input className="gg-input" value={terminal} onChange={(e)=>setTerminal(e.target.value)} placeholder="T2 · optional" maxLength={20}/>
+              </div>
+              <div>
+                <label className="gg-label">Gate</label>
+                <input className="gg-input" value={gate} onChange={(e)=>setGate(e.target.value)} placeholder="B7 · optional" maxLength={10}/>
+              </div>
+              <div>
+                <label className="gg-label">Seat</label>
+                <input className="gg-input gg-mono" style={{textTransform:"uppercase"}} value={seat} onChange={(e)=>setSeat(e.target.value.toUpperCase())} placeholder="12A · optional" maxLength={6}/>
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <div className="flex items-start gap-2 mt-4" style={{fontSize:13, color:"#D9682B"}}>
+              <Icon name="alert-circle" size={16}/>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <button onClick={submit} className="gg-btn mt-6 flex items-center gap-2">
+            <Icon name="send" size={16}/> Set up the trip
+          </button>
+        </div>
+      );
+    }
+
+    // ============== BOARDING PASS DISPLAY ==============
+    function Detail({ icon, label, value, accent }) {
+      return (
+        <div>
+          <div className="gg-mono flex items-center gap-1.5" style={{fontSize:10, opacity:0.55, letterSpacing:"0.15em", marginBottom:4, textTransform:"uppercase"}}>
+            <Icon name={icon} size={11}/>
+            {label}
+          </div>
+          <div className="gg-display" style={{fontSize:18, fontWeight:700, color: accent ? "#D9682B" : "#1C1814"}}>{value}</div>
+        </div>
+      );
+    }
+
+    function BoardingPass({ data, onEdit }) {
+      const dep = data.departureAirport || {};
+      const arr = data.arrivalAirport || {};
+      return (
+        <div className="gg-pass overflow-hidden gg-fade-in">
+          <div className="grid grid-cols-12">
+            <div className="col-span-12 md:col-span-9 p-6 md:p-8">
+              <div className="flex justify-between items-start mb-6 flex-wrap gap-3">
+                <div>
+                  <div className="gg-mono" style={{fontSize:11, opacity:0.55, letterSpacing:"0.15em"}}>BOARDING PASS</div>
+                  <div className="gg-display" style={{fontSize:28, fontWeight:900, lineHeight:1.1}}>{data.airline}</div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="gg-tag gg-tag-amber">{data.flightNumber}</div>
+                  <button onClick={onEdit} className="gg-btn-ghost" style={{padding:"4px 12px", fontSize:11}}>
+                    <Icon name="edit" size={11}/> Edit
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 mb-7">
+                <div>
+                  <div className="gg-mono" style={{fontSize:11, opacity:0.5}}>FROM</div>
+                  <div className="gg-display" style={{fontSize:44, fontWeight:900, lineHeight:1}}>{dep.code}</div>
+                  <div style={{fontSize:13, opacity:0.7, marginTop:2}}>{dep.city}</div>
+                </div>
+                <div className="gg-route-line"></div>
+                <div className="text-right">
+                  <div className="gg-mono" style={{fontSize:11, opacity:0.5}}>TO</div>
+                  <div className="gg-display" style={{fontSize:44, fontWeight:900, lineHeight:1}}>{arr.code}</div>
+                  <div style={{fontSize:13, opacity:0.7, marginTop:2}}>{arr.city}</div>
+                </div>
+              </div>
+              <div className="gg-divider mb-5"></div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Detail icon="calendar" label="Date" value={fmtDate(data.departureDate)} />
+                <Detail icon="clock" label="Boarding" value={fmtTime(data.boardingTime)} accent />
+                <Detail icon="plane" label="Departs" value={fmtTime(data.departureTime)} />
+                <Detail icon="users" label="Travelers" value={`${data.passengerCount} ${data.passengerCount === 1 ? "person" : "people"}`} />
+              </div>
+            </div>
+            <div className="hidden md:flex col-span-3 gg-perforation flex-col justify-between p-6" style={{background:"#FBE3CC"}}>
+              <div>
+                <div className="gg-mono" style={{fontSize:10, opacity:0.6, letterSpacing:"0.2em", marginBottom:4}}>GATE</div>
+                <div className="gg-display" style={{fontSize:36, fontWeight:900, lineHeight:1}}>{data.gate || "TBA"}</div>
+              </div>
+              <div>
+                <div className="gg-mono" style={{fontSize:10, opacity:0.6, letterSpacing:"0.2em", marginBottom:4}}>SEAT</div>
+                <div className="gg-display" style={{fontSize:28, fontWeight:900}}>{data.seat || "—"}</div>
+              </div>
+              <div className="gg-orange"><GoatMark size={32}/></div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ============== ALERT BANNER ==============
+    function AlertBanner({ ticket, userName, onNameChange, armed, fired, permState, now, onEnable, onCancel, onPreview }) {
+      const target = boardingMinusFifteen(ticket?.departureDate, ticket?.boardingTime);
+      const targetTimeStr = target ? target.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" }) : null;
+      const ms = target ? target.getTime() - now : null;
+      const isPast = ms !== null && ms <= 0;
+      const countdown = target && !isPast ? formatTimeUntil(target, now) : null;
+      const tooFar = ms !== null && ms > 2147483000;
+      const baseClass = fired ? "gg-card-warm" : armed ? "gg-card-cool" : "gg-card";
+
+      return (
+        <div className={`${baseClass} mt-8 p-5 md:p-7 gg-fade-in`}>
+          <div className="flex flex-wrap items-center gap-4 md:gap-6">
+            <div style={{
+              width:52, height:52, borderRadius:"50%",
+              background: fired ? "#D9682B" : armed ? "#4A7BA8" : "#1C1814",
+              color:"#F2EBDD", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0,
+            }}>
+              <Icon name={fired ? "bell-ring" : armed ? "check" : "bell"} size={22}/>
+            </div>
+            <div style={{flex:1, minWidth:240}}>
+              <div className="gg-mono" style={{fontSize:11, opacity:0.6, letterSpacing:"0.15em"}}>
+                {fired ? "🐐 BOARDING IN 15" : armed ? (isPast ? "ALERT — TIME PASSED" : "ALERT ARMED") : "PRE-BOARDING NUDGE"}
+              </div>
+              <div className="gg-display" style={{fontSize:22, fontWeight:800, lineHeight:1.2, marginTop:2}}>
+                {fired
+                  ? <>Time to move, {userName || "traveler"}.</>
+                  : armed
+                    ? (isPast ? <>Boarding window has already passed.</> : <>Heads up at <span className="gg-orange">{targetTimeStr}</span>{userName ? `, ${userName}` : ""}.</>)
+                    : <>Get a 15-min nudge before boarding.</>}
+              </div>
+              {fired && ticket?.departureAirport?.terminal && (
+                <div style={{fontSize:14, opacity:0.8, marginTop:4}}>
+                  {ticket.airline} {ticket.flightNumber} · head to {ticket.departureAirport.terminal}.
+                </div>
+              )}
+              {armed && !fired && !isPast && (
+                <div style={{fontSize:13, opacity:0.75, marginTop:4}}>
+                  {countdown}
+                  {permState === "granted" ? " · system notification armed"
+                    : permState === "denied" ? " · in-app banner only (system notifs blocked)"
+                    : " · in-app banner only"}
+                </div>
+              )}
+              {!armed && !fired && ticket?.boardingTime && (
+                <div style={{fontSize:13, opacity:0.7, marginTop:4}}>
+                  Boarding's at {fmtTime(ticket.boardingTime)} — we'll buzz you at {targetTimeStr}.
+                </div>
+              )}
+            </div>
+            {!armed && !fired && (
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <div className="gg-mono" style={{fontSize:9, opacity:0.6, letterSpacing:"0.15em", marginBottom:4}}>NAME</div>
+                  <input type="text" value={userName} onChange={(e)=>onNameChange(e.target.value)} placeholder="Lakshya" className="gg-name-input"/>
+                </div>
+                <button onClick={onEnable} className="gg-btn" disabled={tooFar || isPast}>
+                  {isPast ? "Boarding passed" : tooFar ? "Too far out" : "Enable alert"}
+                </button>
+              </div>
+            )}
+            {armed && !fired && (
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={onPreview} className="gg-btn-ghost flex items-center gap-1">
+                  <Icon name="bell-ring" size={13}/> Preview
+                </button>
+                <button onClick={onCancel} className="gg-btn-ghost flex items-center gap-1">
+                  <Icon name="x" size={13}/> Cancel
+                </button>
+              </div>
+            )}
+            {fired && (
+              <button onClick={onCancel} className="gg-btn-ghost flex items-center gap-1">
+                <Icon name="check" size={13}/> Got it
+              </button>
+            )}
+          </div>
+          {!armed && !fired && (
+            <div style={{fontSize:11, opacity:0.55, marginTop:14, lineHeight:1.5}}>
+              Works while this tab stays open. Allow notifications to also get pinged on other tabs.
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ============== BAG POLL ==============
+    function BagPoll({ hasCheckInBag, onChange, boardingTime }) {
+      const answered = hasCheckInBag !== null;
+      const arriveYes = boardingTime ? minusMinutes(boardingTime, 90) : null;
+      const arriveNo = boardingTime ? minusMinutes(boardingTime, 60) : null;
+      const options = [
+        { value: true,  icon: "🧳", label: "Yes, we're checking a bag", sub: "Bag drop + security takes longer", buffer: "1h 30m before boarding", arrive: arriveYes },
+        { value: false, icon: "🎒", label: "Nope, carry-on only",       sub: "Straight to security",             buffer: "1h before boarding",     arrive: arriveNo  },
+      ];
+
+      return (
+        <div className="mt-8 p-6 md:p-7 gg-fade-in" style={{
+          background:"#FFF3E0", border:"1.5px solid #1C1814", borderRadius:16,
+          boxShadow:"8px 8px 0 #1C1814", position:"relative",
+        }}>
+          <div style={{
+            position:"absolute", top:-14, left:22, background:"#D9682B", color:"#FFFCF4",
+            padding:"6px 14px", borderRadius:999, fontSize:11, fontWeight:700,
+            letterSpacing:"0.15em", fontFamily:"'JetBrains Mono', monospace",
+            border:"1.5px solid #1C1814", boxShadow:"3px 3px 0 #1C1814",
+          }}>📊 FAMILY POLL</div>
+
+          <div style={{marginTop:8}}>
+            <div className="gg-display" style={{fontSize:28, fontWeight:800, lineHeight:1.15, marginBottom:4}}>
+              Are you checking a bag?
+            </div>
+            <div style={{fontSize:13, opacity:0.7, marginBottom:22}}>
+              Pick one — we'll set the right "arrive by" time for the family.
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {options.map(opt => {
+                const selected = hasCheckInBag === opt.value;
+                const dimmed = answered && !selected;
+                return (
+                  <button
+                    key={String(opt.value)}
+                    onClick={() => onChange(opt.value)}
+                    style={{
+                      display:"flex", alignItems:"center", gap:14, width:"100%", padding:"16px 18px",
+                      background: selected ? "#1C1814" : "#FFFCF4",
+                      color: selected ? "#F2EBDD" : "#1C1814",
+                      border:"1.5px solid #1C1814", borderRadius:12, cursor:"pointer",
+                      fontFamily:"inherit", textAlign:"left",
+                      opacity: dimmed ? 0.45 : 1,
+                      boxShadow: selected ? "5px 5px 0 #D9682B" : "none",
+                      transform: selected ? "translate(-1px, -1px)" : "none",
+                      transition:"all 200ms ease",
+                    }}
+                  >
+                    <div style={{
+                      width:24, height:24, borderRadius:"50%",
+                      border:`2px solid ${selected ? "#F2EBDD" : "#1C1814"}`,
+                      flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
+                    }}>
+                      {selected && <div style={{width:12, height:12, borderRadius:"50%", background:"#D9682B"}}/>}
+                    </div>
+                    <span style={{fontSize:26, lineHeight:1}}>{opt.icon}</span>
+                    <div style={{flex:1, minWidth:0}}>
+                      <div className="gg-display" style={{fontSize:17, fontWeight:700, lineHeight:1.2, marginBottom:2}}>
+                        {opt.label}
+                      </div>
+                      <div style={{fontSize:12, opacity:0.7}}>{opt.sub}</div>
+                    </div>
+                    <div style={{textAlign:"right", flexShrink:0}}>
+                      <div className="gg-mono" style={{fontSize:9, opacity: selected ? 0.6 : 0.5, letterSpacing:"0.1em"}}>ARRIVE</div>
+                      <div className="gg-display" style={{fontSize:18, fontWeight:800, color: selected ? "#FBE3CC" : "#D9682B", lineHeight:1, marginTop:2}}>
+                        {opt.arrive || "—"}
+                      </div>
+                      <div style={{fontSize:10, opacity:0.6, marginTop:2}}>{opt.buffer}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {answered && (
+              <div className="gg-fade-in" style={{marginTop:14, fontSize:13, opacity:0.8, display:"flex", alignItems:"center", gap:8}}>
+                <span style={{fontSize:16}}>🐐</span>
+                <span>Locked in. Your route card is now tuned for <strong>{hasCheckInBag ? "1.5 hr" : "1 hr"} before boarding.</strong></span>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ============== WEATHER CARD ==============
+    function WeatherCard({ data, arrival, date, loading, error }) {
+      const day = data?.daily;
+      const code = day?.weather_code?.[0];
+      const info = code !== undefined ? weatherInfo(code) : null;
+      const max = day?.temperature_2m_max?.[0];
+      const min = day?.temperature_2m_min?.[0];
+      const precip = day?.precipitation_sum?.[0];
+      const wind = day?.wind_speed_10m_max?.[0];
+      const cardClass = info?.tone === "sun" ? "gg-card-warm" : info?.tone === "cool" ? "gg-card-cool" : "gg-card";
+
+      return (
+        <div className={`${cardClass} p-6 md:p-7`}>
+          <div className="flex items-center justify-between mb-5">
+            <div className="gg-tag gg-tag-blue">02 · Forecast</div>
+            <Icon name="cloud-sun" size={20} style={{opacity:0.5}}/>
+          </div>
+          <div className="gg-mono" style={{fontSize:11, opacity:0.6, letterSpacing:"0.15em"}}>WHERE YOU LAND</div>
+          <div className="gg-display" style={{fontSize:26, fontWeight:800, lineHeight:1.1, marginTop:2}}>
+            {arrival?.city || "Destination"}
+          </div>
+          <div style={{fontSize:13, opacity:0.65, marginBottom:22}}>
+            {fmtDate(date)} · {arrival?.code}
+          </div>
+
+          {loading && (
+            <div className="flex items-center gap-2" style={{opacity:0.7}}>
+              <Icon name="loader" size={16} className="gg-spin"/> Fetching forecast…
+            </div>
+          )}
+          {error && (
+            <div className="flex items-start gap-2" style={{fontSize:14, opacity:0.75}}>
+              <Icon name="alert-circle" size={16}/>
+              <span>{error}</span>
+            </div>
+          )}
+
+          {data && info && (
+            <div className="gg-fade-in">
+              <div className="flex items-end gap-5">
+                <Icon name={info.icon} size={68} strokeWidth={1.5} className="gg-orange"/>
+                <div>
+                  <div className="gg-display" style={{fontSize:56, fontWeight:900, lineHeight:0.9}}>{Math.round(max)}°</div>
+                  <div style={{fontSize:13, opacity:0.7}}>low {Math.round(min)}° · {info.label}</div>
+                </div>
+              </div>
+              <div className="gg-divider" style={{margin:"20px 0"}}></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="gg-mono" style={{fontSize:10, opacity:0.55, letterSpacing:"0.15em"}}>RAIN</div>
+                  <div className="gg-display" style={{fontSize:18, fontWeight:700}}>
+                    {precip != null ? `${precip.toFixed(1)} mm` : "—"}
+                  </div>
+                </div>
+                <div>
+                  <div className="gg-mono flex items-center gap-1" style={{fontSize:10, opacity:0.55, letterSpacing:"0.15em"}}>
+                    <Icon name="wind" size={10}/> WIND
+                  </div>
+                  <div className="gg-display" style={{fontSize:18, fontWeight:700}}>
+                    {wind != null ? `${Math.round(wind)} km/h` : "—"}
+                  </div>
+                </div>
+              </div>
+              <PackingTip code={code} max={max} precip={precip}/>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function PackingTip({ code, max, precip }) {
+      if (code === undefined) return null;
+      let tip;
+      if ([61, 63, 65, 80, 81, 82, 51, 53, 55].includes(code) || precip > 2) tip = "Pack a rain layer — and tuck one in the kids' bag too.";
+      else if ([71, 73, 75, 77, 85, 86].includes(code)) tip = "Snow on the ground. Warm boots, hats, the works.";
+      else if ([95, 96, 99].includes(code)) tip = "Storms expected — flexible plans, indoor backups.";
+      else if (max >= 28) tip = "Hot landing. Light layers, sunscreen, water.";
+      else if (max <= 5) tip = "Brisk. Coats and gloves on top of the suitcase.";
+      else if (max <= 15) tip = "Light jacket weather. Easy.";
+      else tip = "Mild and easygoing — comfy clothes will do.";
+      return (
+        <div className="mt-5 p-3 flex items-start gap-2" style={{background:"rgba(28,24,20,0.06)", borderRadius:10, fontSize:13}}>
+          <span style={{fontSize:16}}>🧳</span>
+          <span style={{lineHeight:1.4}}>{tip}</span>
+        </div>
+      );
+    }
+
+    // ============== ROUTE CARD ==============
+    function RouteCard({ ticket, userLoc, distanceKm, onRequest, loading, error, hasCheckInBag }) {
+      const dep = ticket.departureAirport || {};
+      const drivingMin = distanceKm ? Math.round((distanceKm / 50) * 60) : null;
+      const bagBuffer = hasCheckInBag === false ? 60 : 90;
+
+      return (
+        <div className="gg-card p-6 md:p-7">
+          <div className="flex items-center justify-between mb-5">
+            <div className="gg-tag gg-tag-sage">03 · Route</div>
+            <Icon name="navigation" size={20} style={{opacity:0.5}}/>
+          </div>
+          <div className="gg-mono" style={{fontSize:11, opacity:0.6, letterSpacing:"0.15em"}}>YOUR TERMINAL</div>
+          <div className="gg-display" style={{fontSize:26, fontWeight:800, lineHeight:1.1, marginTop:2}}>
+            {dep.terminal || "Check at airport"}
+          </div>
+          <div style={{fontSize:13, opacity:0.65, marginBottom:22}}>{dep.name} · {dep.city}</div>
+
+          {!userLoc && !loading && (
+            <div>
+              <p style={{fontSize:14, opacity:0.75, marginBottom:16, lineHeight:1.5}}>
+                Share your location and the goat will work out how far you are from the gate — and roughly how long the drive runs.
+              </p>
+              <button onClick={onRequest} className="gg-btn flex items-center gap-2">
+                <Icon name="map-pin" size={16}/> Where am I?
+              </button>
+              {error && (
+                <div className="flex items-start gap-2 mt-4" style={{fontSize:13, opacity:0.75}}>
+                  <Icon name="alert-circle" size={14}/><span>{error}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {loading && (
+            <div className="flex items-center gap-2" style={{opacity:0.7}}>
+              <Icon name="loader" size={16} className="gg-spin"/> Pinpointing you…
+            </div>
+          )}
+
+          {userLoc && distanceKm != null && (
+            <div className="gg-fade-in">
+              <div className="flex items-end gap-3 mb-4">
+                <div className="gg-display gg-orange" style={{fontSize:64, fontWeight:900, lineHeight:0.85}}>
+                  {distanceKm < 10 ? distanceKm.toFixed(1) : Math.round(distanceKm)}
+                </div>
+                <div className="gg-mono" style={{fontSize:14, opacity:0.7, paddingBottom:8}}>KM</div>
+              </div>
+              <div style={{fontSize:14, opacity:0.75, marginBottom:18}}>
+                from where you stand to {dep.code}{dep.terminal ? `, ${dep.terminal}` : ""}.
+              </div>
+              <div className="gg-divider mb-4"></div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-center">
+                  <div style={{width:28, height:28, borderRadius:"50%", background:"#1C1814", color:"#F2EBDD", display:"flex", alignItems:"center", justifyContent:"center"}}>
+                    <span style={{fontSize:12}}>📍</span>
+                  </div>
+                  <div className="gg-mono" style={{fontSize:9, opacity:0.6, marginTop:4}}>YOU</div>
+                </div>
+                <div style={{flex:1, height:2, background:"repeating-linear-gradient(to right, #1C1814 0, #1C1814 5px, transparent 5px, transparent 10px)"}}></div>
+                <div className="text-center">
+                  <div style={{width:28, height:28, borderRadius:"50%", background:"#D9682B", color:"#FFFCF4", display:"flex", alignItems:"center", justifyContent:"center"}}>
+                    <Icon name="plane" size={14}/>
+                  </div>
+                  <div className="gg-mono" style={{fontSize:9, opacity:0.6, marginTop:4}}>{dep.code}</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="gg-mono" style={{fontSize:10, opacity:0.55, letterSpacing:"0.15em"}}>EST. DRIVE</div>
+                  <div className="gg-display" style={{fontSize:18, fontWeight:700}}>
+                    ~{drivingMin >= 60 ? `${Math.floor(drivingMin / 60)}h ${drivingMin % 60}m` : `${drivingMin} min`}
+                  </div>
+                </div>
+                <div>
+                  <div className="gg-mono" style={{fontSize:10, opacity:0.55, letterSpacing:"0.15em"}}>ARRIVE BY</div>
+                  <div className="gg-display gg-orange" style={{fontSize:18, fontWeight:700}}>
+                    {ticket.boardingTime ? minusMinutes(ticket.boardingTime, bagBuffer) : "—"}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-5 p-3 flex items-start gap-2" style={{background:"rgba(28,24,20,0.06)", borderRadius:10, fontSize:13}}>
+                <span style={{fontSize:16}}>🐐</span>
+                <span style={{lineHeight:1.4}}>
+                  {hasCheckInBag === true ? "With check-in bags, head out 90 min before boarding to clear bag drop and security."
+                    : hasCheckInBag === false ? "Carry-on only — 60 min before boarding leaves room for security."
+                    : "Tell us about bags above — we'll fine-tune your arrive-by."}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ============== MAIN APP ==============
+    function GateGoat() {
+      const [ticketData, setTicketData] = useState(null);
+      const [weatherData, setWeatherData] = useState(null);
+      const [userLoc, setUserLoc] = useState(null);
+      const [distanceKm, setDistanceKm] = useState(null);
+      const [loadingWeather, setLoadingWeather] = useState(false);
+      const [loadingLoc, setLoadingLoc] = useState(false);
+      const [weatherErr, setWeatherErr] = useState(null);
+      const [locErr, setLocErr] = useState(null);
+
+      const [userName, setUserName] = useState("Lakshya");
+      const [alertArmed, setAlertArmed] = useState(false);
+      const [alertFired, setAlertFired] = useState(false);
+      const [showToast, setShowToast] = useState(false);
+      const [permState, setPermState] = useState(
+        typeof Notification !== "undefined" ? Notification.permission : "unsupported"
+      );
+      const [now, setNow] = useState(Date.now());
+      const [hasCheckInBag, setHasCheckInBag] = useState(null);
+      const [editingTicket, setEditingTicket] = useState(false);
+
+      // weather fetch
+      useEffect(() => {
+        if (!ticketData?.arrivalAirport?.lat || !ticketData?.departureDate) return;
+        const days = daysFromToday(ticketData.departureDate);
+        if (days === null || days < 0) { setWeatherErr("Flight date appears to be in the past."); return; }
+        if (days > 15) { setWeatherErr(`Flight is ${days} days out — forecast available within 15 days.`); return; }
+        setLoadingWeather(true);
+        setWeatherErr(null);
+        const { lat, lng } = ticketData.arrivalAirport;
+        const date = ticketData.departureDate;
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,wind_speed_10m_max&timezone=auto&start_date=${date}&end_date=${date}&temperature_unit=celsius`)
+          .then(r => r.json())
+          .then(d => setWeatherData(d))
+          .catch(() => setWeatherErr("Couldn't fetch the forecast."))
+          .finally(() => setLoadingWeather(false));
+      }, [ticketData]);
+
+      // tick for countdown
+      useEffect(() => {
+        const id = setInterval(() => setNow(Date.now()), 20000);
+        return () => clearInterval(id);
+      }, []);
+
+      // schedule alert
+      useEffect(() => {
+        if (!alertArmed || alertFired) return;
+        const target = boardingMinusFifteen(ticketData?.departureDate, ticketData?.boardingTime);
+        if (!target) return;
+        const ms = target.getTime() - Date.now();
+        if (ms <= 0) { fireAlert(); return; }
+        if (ms > 2147483000) return;
+        const timerId = setTimeout(fireAlert, ms);
+        return () => clearTimeout(timerId);
+      }, [alertArmed, alertFired, ticketData]);
+
+      const fireAlert = () => {
+        setAlertFired(true);
+        setShowToast(true);
+        if (typeof Notification !== "undefined" && Notification.permission === "granted" && ticketData) {
+          try {
+            new Notification(`Hey ${userName || "traveler"} 🐐`, {
+              body: `${ticketData.airline || "Your flight"} ${ticketData.flightNumber || ""} boards in 15 min. ${ticketData.departureAirport?.terminal ? "Head to " + ticketData.departureAirport.terminal + "." : "Head to your gate."}`,
+              tag: "gategoat-boarding",
+            });
+          } catch (e) {}
+        }
+      };
+
+      const enableAlert = async () => {
+        if (typeof Notification !== "undefined") {
+          if (Notification.permission === "default") {
+            try {
+              const p = await Notification.requestPermission();
+              setPermState(p);
+            } catch (e) {}
+          } else {
+            setPermState(Notification.permission);
+          }
+        }
+        setAlertArmed(true);
+      };
+
+      const cancelAlert = () => {
+        setAlertArmed(false);
+        setAlertFired(false);
+        setShowToast(false);
+      };
+
+      const previewAlert = () => {
+        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+          try {
+            new Notification(`Hey ${userName || "traveler"} 🐐 (preview)`, {
+              body: `This is what your alert will look like — flight boards in 15 minutes.`,
+              tag: "gategoat-preview",
+            });
+          } catch (e) {}
+        }
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 6000);
+      };
+
+      const requestLocation = () => {
+        setLocErr(null);
+        setLoadingLoc(true);
+        if (!navigator.geolocation) { setLocErr("This device doesn't support geolocation."); setLoadingLoc(false); return; }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            setUserLoc(loc);
+            if (ticketData?.departureAirport?.lat) {
+              const d = haversine(loc.lat, loc.lng, ticketData.departureAirport.lat, ticketData.departureAirport.lng);
+              setDistanceKm(d);
+            }
+            setLoadingLoc(false);
+          },
+          (err) => {
+            setLocErr(err.code === 1 ? "Location permission denied. Enable it in your browser to continue." : "Couldn't get your location — try again.");
+            setLoadingLoc(false);
+          },
+          { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 }
+        );
+      };
+
+      const reset = () => {
+        setTicketData(null);
+        setWeatherData(null);
+        setUserLoc(null);
+        setDistanceKm(null);
+        setWeatherErr(null);
+        setLocErr(null);
+        setAlertArmed(false);
+        setAlertFired(false);
+        setShowToast(false);
+        setHasCheckInBag(null);
+        setEditingTicket(false);
+      };
+
+      return (
+        <div className="gg-root">
+          <div className="relative" style={{zIndex:1}}>
+            {showToast && (
+              <div className="gg-toast" onClick={()=>setShowToast(false)} role="button">
+                <div className="gg-toast-inner">
+                  <div className="gg-toast-icon"><Icon name="bell-ring" size={22}/></div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:800, fontSize:15, marginBottom:2}}>Time to move, {userName || "traveler"} 🐐</div>
+                    <div style={{fontSize:13, opacity:0.85}}>
+                      {ticketData?.airline} {ticketData?.flightNumber} boards in 15 min
+                      {ticketData?.departureAirport?.terminal ? ` · ${ticketData.departureAirport.terminal}` : ""}
+                    </div>
+                  </div>
+                  <Icon name="x" size={18} style={{opacity:0.6}}/>
+                </div>
+              </div>
+            )}
+
+            <header className="max-w-6xl mx-auto px-6 pt-8 pb-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div style={{color:"#1C1814"}}><GoatMark size={42}/></div>
+                <div>
+                  <div className="gg-display" style={{fontSize:26, fontWeight:900, lineHeight:1}}>GateGoat</div>
+                  <div className="gg-mono" style={{fontSize:10, opacity:0.6, letterSpacing:"0.15em"}}>FAMILY · TRAVEL · CO.</div>
+                </div>
+              </div>
+              {ticketData && !editingTicket && (
+                <button onClick={reset} className="gg-btn-ghost flex items-center gap-2">
+                  <Icon name="refresh" size={14}/> New trip
+                </button>
+              )}
+            </header>
+
+            {(!ticketData || editingTicket) && (
+              <section className="max-w-4xl mx-auto px-6 pt-4 pb-20 gg-fade-in">
+                {!ticketData && (
+                  <div className="text-center mb-10">
+                    <div className="gg-tag gg-tag-amber mb-6" style={{display:"inline-flex"}}>
+                      <span style={{fontSize:14}}>🐐</span> Don't miss the gate
+                    </div>
+                    <h1 className="gg-display" style={{fontSize:"clamp(48px, 8vw, 88px)", fontWeight:900, lineHeight:0.95, marginBottom:18}}>
+                      Travel days,<br/>
+                      <em className="gg-orange" style={{fontStyle:"italic", fontWeight:500}}>herded gently.</em>
+                    </h1>
+                    <p style={{fontSize:18, maxWidth:540, margin:"0 auto", opacity:0.75, lineHeight:1.5}}>
+                      A pocket co-pilot for family travel. Enter your flight — get the destination forecast, distance to your terminal, and a 15-minute pre-boarding nudge.
+                    </p>
+                  </div>
+                )}
+
+                <TicketForm onSubmit={(d) => { setTicketData(d); setEditingTicket(false); }} />
+
+                {!ticketData && (
+                  <div className="grid md:grid-cols-3 gap-5 mt-14 gg-stagger">
+                    {[
+                      { icon:"plane-takeoff", title:"Flight rounded up", desc:"Number, airline, boarding time, and the whole party — read in a beat.", tag:"01 · Trip", color:"#D9682B" },
+                      { icon:"cloud-sun",     title:"Weather where you land", desc:"We pull the forecast for your destination on flight day. Pack accordingly.", tag:"02 · Forecast", color:"#4A7BA8" },
+                      { icon:"navigation",    title:"Right terminal, no panic", desc:"Distance from where you stand to the exact terminal your airline uses.", tag:"03 · Route", color:"#7B8A6E" },
+                    ].map((f, i) => (
+                      <div key={i} className="gg-card p-5">
+                        <div className="gg-tag mb-4" style={{background:f.color}}>{f.tag}</div>
+                        <Icon name={f.icon} size={28} style={{marginBottom:12}}/>
+                        <div className="gg-display" style={{fontSize:20, fontWeight:700, marginBottom:6}}>{f.title}</div>
+                        <div style={{fontSize:14, opacity:0.7, lineHeight:1.5}}>{f.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {ticketData && !editingTicket && (
+              <section className="max-w-5xl mx-auto px-6 pb-20 gg-fade-in">
+                <BoardingPass data={ticketData} onEdit={() => setEditingTicket(true)} />
+
+                <AlertBanner
+                  ticket={ticketData}
+                  userName={userName}
+                  onNameChange={setUserName}
+                  armed={alertArmed}
+                  fired={alertFired}
+                  permState={permState}
+                  now={now}
+                  onEnable={enableAlert}
+                  onCancel={cancelAlert}
+                  onPreview={previewAlert}
+                />
+
+                <BagPoll
+                  hasCheckInBag={hasCheckInBag}
+                  onChange={setHasCheckInBag}
+                  boardingTime={ticketData.boardingTime}
+                />
+
+                <div className="grid md:grid-cols-2 gap-8 mt-10">
+                  <WeatherCard
+                    data={weatherData}
+                    arrival={ticketData.arrivalAirport}
+                    date={ticketData.departureDate}
+                    loading={loadingWeather}
+                    error={weatherErr}
+                  />
+                  <RouteCard
+                    ticket={ticketData}
+                    userLoc={userLoc}
+                    distanceKm={distanceKm}
+                    onRequest={requestLocation}
+                    loading={loadingLoc}
+                    error={locErr}
+                    hasCheckInBag={hasCheckInBag}
+                  />
+                </div>
+              </section>
+            )}
+
+            <footer className="max-w-6xl mx-auto px-6 py-8 flex justify-between items-center" style={{fontSize:12, opacity:0.55, flexWrap:"wrap", gap:8}}>
+              <span className="gg-mono">© GATEGOAT · MMXXVI</span>
+              <span className="gg-mono">SAFE TRAVELS, FAM</span>
+            </footer>
+          </div>
+        </div>
+      );
+    }
+
+    // ============== BOOTSTRAP ==============
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<GateGoat/>);
+  </script>
+</body>
+</html>
