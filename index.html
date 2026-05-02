@@ -1634,9 +1634,117 @@
               </section>
             )}
 
-            <footer className="max-w-6xl mx-auto px-6 py-8 flex justify-between items-center" style={{fontSize:12, opacity:0.55, flexWrap:"wrap", gap:8}}>
-              <span className="gg-mono">© GATEGOAT · MMXXVI</span>
-              <span className="gg-mono">SAFE TRAVELS, FAM</span>
+            <footer className="max-w-6xl mx-auto px-6 pt-14 pb-10">
+              {/* divider */}
+              <div style={{
+                height:1, background:"#1C1814", opacity:0.18, marginBottom:36,
+                position:"relative",
+              }}>
+                <div style={{
+                  position:"absolute", left:"50%", top:-13, transform:"translateX(-50%)",
+                  background:"#F7F0DF", padding:"0 14px",
+                }}>
+                  <span className="gg-mono" style={{fontSize:10, letterSpacing:"0.25em", opacity:0.55}}>
+                    ★ MADE WITH HEART ★
+                  </span>
+                </div>
+              </div>
+
+              {/* maker card */}
+              <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-center md:items-start" style={{
+                background:"#FFFCF4",
+                border:"1.5px solid #1C1814",
+                borderRadius:18,
+                padding:"28px 26px",
+                boxShadow:"6px 6px 0 #1C1814",
+                position:"relative",
+              }}>
+                {/* corner stamp */}
+                <div style={{
+                  position:"absolute", top:-14, right:24,
+                  background:"#4A7BA8", color:"#FFFCF4",
+                  padding:"6px 14px", borderRadius:999, fontSize:11, fontWeight:700,
+                  letterSpacing:"0.15em", fontFamily:"'JetBrains Mono', monospace",
+                  border:"1.5px solid #1C1814", boxShadow:"3px 3px 0 #1C1814",
+                }}>👋 MEET THE MAKER</div>
+
+                {/* maker mark — kept anonymous on purpose */}
+                <div style={{flexShrink:0, position:"relative"}}>
+                  <div style={{
+                    width:148, height:148, borderRadius:"50%",
+                    background:"#FFE9CC",
+                    border:"3px solid #1C1814",
+                    boxShadow:"5px 5px 0 #D9682B",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    position:"relative", overflow:"hidden",
+                  }}>
+                    {/* subtle dotted texture */}
+                    <div style={{
+                      position:"absolute", inset:0,
+                      backgroundImage:"radial-gradient(#1C1814 1px, transparent 1px)",
+                      backgroundSize:"10px 10px",
+                      opacity:0.08,
+                    }}/>
+                    <div style={{position:"relative", color:"#1C1814"}}>
+                      <GoatMark size={86}/>
+                    </div>
+                  </div>
+                  {/* monogram badge */}
+                  <div style={{
+                    position:"absolute", bottom:-6, right:-6,
+                    background:"#1C1814", color:"#FFFCF4",
+                    minWidth:42, height:42, padding:"0 10px", borderRadius:999,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    border:"2px solid #1C1814",
+                    fontSize:13, fontWeight:800, letterSpacing:"0.05em",
+                    fontFamily:"'JetBrains Mono', monospace",
+                    boxShadow:"2px 2px 0 #D9682B",
+                  }}>LRS</div>
+                </div>
+
+                {/* bio */}
+                <div style={{flex:1, textAlign:"left"}}>
+                  <div className="gg-mono" style={{fontSize:10, letterSpacing:"0.2em", opacity:0.6, marginBottom:6}}>
+                    FOUNDER · CEO · CHIEF GOAT
+                  </div>
+                  <div className="gg-display" style={{fontSize:30, fontWeight:800, lineHeight:1.1, marginBottom:8}}>
+                    Lakshya Raj Singh
+                  </div>
+                  <div style={{fontSize:14, lineHeight:1.55, opacity:0.85, marginBottom:14, maxWidth:560}}>
+                    Lakshya is an <strong>11-year-old</strong> from <strong>Gurugram, India</strong> who
+                    got tired of his family's pre-flight chaos — the <em>"did we leave on time?"</em>, the
+                    <em> "is it raining there?"</em>, the <em>"who packed what?"</em> — and decided to
+                    build the tool he wished they had. GateGoat is the result.
+                  </div>
+                  <div className="flex flex-wrap gap-2" style={{marginBottom:4}}>
+                    <span className="gg-mono" style={{
+                      fontSize:10, padding:"4px 10px", borderRadius:999,
+                      background:"#FFE9CC", border:"1px solid #1C1814",
+                      letterSpacing:"0.1em",
+                    }}>📍 GURUGRAM</span>
+                    <span className="gg-mono" style={{
+                      fontSize:10, padding:"4px 10px", borderRadius:999,
+                      background:"#E0EBF5", border:"1px solid #1C1814",
+                      letterSpacing:"0.1em",
+                    }}>🎂 AGE 11</span>
+                    <span className="gg-mono" style={{
+                      fontSize:10, padding:"4px 10px", borderRadius:999,
+                      background:"#E8F0E2", border:"1px solid #1C1814",
+                      letterSpacing:"0.1em",
+                    }}>✈️ PROBLEM-SOLVER</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* trademark line */}
+              <div className="flex justify-between items-center flex-wrap gap-3" style={{marginTop:28}}>
+                <div className="gg-mono" style={{fontSize:11, opacity:0.65, letterSpacing:"0.1em"}}>
+                  GateGoat™ · © 2026 Lakshya Raj Singh · All rights reserved.
+                </div>
+                <div className="gg-mono" style={{fontSize:11, opacity:0.55, letterSpacing:"0.15em"}}>
+                  SAFE TRAVELS, FAM 🐐
+                </div>
+              </div>
             </footer>
           </div>
         </div>
